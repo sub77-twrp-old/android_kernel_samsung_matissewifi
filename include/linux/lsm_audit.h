@@ -89,6 +89,9 @@ struct common_audit_data {
 		struct apparmor_audit_data *apparmor_audit_data;
 #endif
 	}; /* per LSM data pointer union */
+	/* these callback will be implemented by a specific LSM */
+	void (*lsm_pre_audit)(struct audit_buffer *, void *);
+	void (*lsm_post_audit)(struct audit_buffer *, void *);
 };
 
 #define v4info fam.v4
