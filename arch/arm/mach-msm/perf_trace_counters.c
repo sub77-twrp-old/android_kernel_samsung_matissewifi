@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2013-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,22 +23,22 @@ DEFINE_PER_CPU(u32[NUM_L2_PERCPU], previous_l2_cnts);
 DEFINE_PER_CPU(u32, old_pid);
 DEFINE_PER_CPU(u32, hotplug_flag);
 /* Reset per_cpu variables that store counter values uppn CPU hotplug */
-#ifdef FUCKER
 static int tracectr_cpu_hotplug_notifier(struct notifier_block *self,
 				    unsigned long action, void *hcpu)
 {
 	int ret = NOTIFY_OK;
-//	int cpu = (int)hcpu;
+	int cpu = (int)hcpu;
 
-//	if ((action & (~CPU_TASKS_FROZEN)) == CPU_STARTING)
-//		per_cpu(hotplug_flag, cpu) = 1;
-//
+	if ((action & (~CPU_TASKS_FROZEN)) == CPU_STARTING)
+		per_cpu(hotplug_flag, cpu) = 1;
+
 	return ret;
 }
+
 static struct notifier_block tracectr_cpu_hotplug_notifier_block = {
 	.notifier_call = tracectr_cpu_hotplug_notifier,
 };
-#endif
+
 static void setup_prev_cnts(u32 cpu)
 {
 	int i;
@@ -160,7 +159,7 @@ int __init init_tracecounters(void)
 	struct dentry *dir;
 	struct dentry *file;
 	unsigned int value = 1;
-//	int cpu;
+	int cpu;
 
 	dir = debugfs_create_dir("perf_debug_tp", NULL);
 	if (!dir)
@@ -171,15 +170,15 @@ int __init init_tracecounters(void)
 		debugfs_remove(dir);
 		return -ENOMEM;
 	}
-//	register_cpu_notifier(&tracectr_cpu_hotplug_notifier_block);
-//	for_each_possible_cpu(cpu)
-//		per_cpu(old_pid, cpu) = -1;
+	register_cpu_notifier(&tracectr_cpu_hotplug_notifier_block);
+	for_each_possible_cpu(cpu)
+		per_cpu(old_pid, cpu) = -1;
 	return 0;
 }
 
 int __exit exit_tracecounters(void)
 {
-//	unregister_cpu_notifier(&tracectr_cpu_hotplug_notifier_block);
+	unregister_cpu_notifier(&tracectr_cpu_hotplug_notifier_block);
 	return 0;
 }
 late_initcall(init_tracecounters);
